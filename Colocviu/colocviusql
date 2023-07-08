@@ -1,0 +1,45 @@
+--Dobrin Ionut-Alexandru    Grupa 134     schema: exam45 subiectul 1    
+
+--1 a)
+SELECT DISTINCT(h.denumire), h.id, t.prenume,  t.nume
+FROM HOTEL h, TURIST t, CAZARE c, CAMERA ca, TURIST_cazare tu
+WHERE lower(h.denumire) like '%l%'
+AND t.id = tu.id_turist
+AND c.id = tu.id_cazare 
+AND c.id_camera = ca.id
+AND ca.id_hotel = h.id;
+
+
+--1 b)
+SELECT DISTINCT (t.id), t.nume || ' ' || t.prenume 
+FROM Turist t, Turist_Cazare tu
+WHERE t.id = tu.id_turist
+AND (SELECT COUNT(id_cazare)
+          FROM Turist_cazare
+          WHERE t.id = id_turist) > 3;
+          
+--2
+
+SELECT ca.id, c.id, t.prenume 
+FROM cazare c, camera ca, turist t
+WHERE t.data_nasterii = (SELECT max(data_nasterii)
+                  FROM turist)
+AND ca.id = c.id_camera;
+
+--3
+
+SELECT h.denumire, max(ca.nr_camera) - min(ca.nr_camera), SUM(t.tarif)
+FROM Hotel h, Camera ca, tarif_camera t
+WHERE DATEDIFF(day, t.data_end - t.data_start) = 1
+AND ca.id = t.id_camera
+AND h.id = ca.id_hotel
+AND h.id = (SELECT h.id
+            FROM hotel h, cazare ca, camera c, turist_cazare t
+            WHERE h.id = ca.id 
+            AND ca.id = t.id_cazare
+            AND ca.id_camera = c.id
+            GROUP BY (id_cazare)
+            HAVING id_cazare = max(count(id_cazare))) 
+GROUP BY (h.denumire, ca.nr_camera, t.tarif);
+
+
