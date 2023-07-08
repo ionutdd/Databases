@@ -1,0 +1,83 @@
+--LAB2
+
+
+--ex1  de la partea de exercitii din lab 2
+SELECT CONCAT(CONCAT(first_name, ' '), last_name) || ' castiga ' || salary || ' lunar dar doreste ' || salary*3 AS "Salariu Ideal"
+FROM employees;
+
+--ex2
+SELECT initcap(first_name), upper(last_name), length(last_name)
+FROM employees
+WHERE upper(last_name) like '__A%' OR upper(last_name) like 'J%' OR upper(last_name) like'M%'
+ORDER BY length(last_name) DESC;
+
+SELECT initcap(first_name), upper(last_name), length(last_name)
+FROM employees
+WHERE substr(upper(last_name),1,1) = 'J' OR substr(upper(last_name),1,1) = 'M' OR substr(upper(last_name),3,1) = 'A'
+ORDER BY length(last_name) DESC;
+
+DESC employees;
+
+--ex3
+
+SELECT employee_id, last_name, department_id
+FROM employees
+WHERE trim(both ' ' from lower(first_name)) = 'steven';
+
+
+--ex4
+
+SELECT employee_id, last_name, first_name, length(last_name), instr(lower(last_name), 'a')
+FROM employees
+WHERE lower(last_name) like '%e';
+
+
+
+SELECT next_day('08/MAR/2022','Monday')
+FROM dual;
+
+SELECT to_char(TRUNC(SYSDATE), 'dd/mm//yy HH24:MI')
+FROM dual;
+
+
+
+--ex5
+
+SELECT employee_id, trunc(sysdate) - trunc(hire_date) nr_zile
+FROM employees
+WHERE mod(trunc(sysdate) - trunc(hire_date),7)=0;
+
+
+
+SELECT employee_id, first_name, last_name, nvl(manager_id, 0), manager_id
+FROM employees
+ORDER BY 4;
+
+
+SELECT employee_id, nvl2(manager_id, 'are manager', 'n-are manager')
+FROM employees;
+
+SELECT employee_id, nvl2(manager_id, to_char(manager_id), 'n-are manager')
+FROM employees;
+
+SELECT employee_id, nvl2(manager_id, 'are manager', 0)
+FROM employees;
+
+
+
+--ex 8 Sa se afiseze data peste 30 de zile
+
+SELECT to_char(sysdate+30)
+FROM dual;
+
+
+
+--ex 9 Sa se afiseze nr de zile ramase pana la sf anului
+SELECT to_date('31-DEC-'||to_char(sysdate,'YYYY')) - trunc(sysdate), to_char(sysdate, 'dd-mm-yyyy HH24:MI')
+FROM dual;
+
+
+--ex10 Sa se afiseze data si ora de peste 12 ore
+
+SELECT to_char(sysdate+0.5)
+FROM dual;

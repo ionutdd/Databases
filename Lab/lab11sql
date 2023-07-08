@@ -1,0 +1,73 @@
+SELECT * 
+FROM Project;
+
+SELECT *
+FROM Works_On;
+
+SELECT DISTINCT employee_id
+FROM works_on
+ORDER BY employee_id;
+
+--angajatii care lucreaza pe toate proiectele cu buget de 10000
+
+--varianta 1 cu 2 Non Exists
+SELECT DISTINCT employee_id
+FROM works_on a 
+WHERE NOT EXISTS(SELECT 1 
+                 FROM project p 
+                 WHERE budget=10000 
+                 AND NOT EXISTS(SELECT'x'
+                                FROM works_on b
+                                WHERE p.project_id=b.project_id
+                                AND b.employee_id=a.employee_id));
+                                
+--varianta 2 cu simularea diviziunii cu ajutorul functiei COUNT
+SELECT employee_id
+FROM works_on
+WHERE project_id IN  (SELECT project_id
+                      FROM project 
+                      WHERE budget=10000)
+GROUP BY employee_id 
+HAVING COUNT(project_id)=(SELECT COUNT(*)
+                          FROM project
+                          WHERE budget=10000);
+                          
+--varianta 3 cu metoda MINUS(care automat scoate duplicatele)
+SELECT employee_id 
+FROM works_on 
+MINUS 
+SELECT employee_id 
+FROM(SELECT employee_id, project_id
+    FROM (SELECT DISTINCT employee_id 
+          FROM works_on) t1,(SELECT project_id 
+                            FROM project WHERE budget=10000) t2
+                            MINUS
+                            SELECT employee_id, project_id 
+                            FROM works_on) t3;
+                            
+--varianta 4 A include B <=> B-A=multimea vida
+SELECT DISTINCT employee_id
+FROM works_on a 
+WHERE NOT EXISTS (
+    (SELECT project_id 
+    FROM project p
+    WHERE budget=10000)
+    MINUS(SELECT p.project_id 
+          FROM project p, works_on b 
+          WHERE p.project_id=b.project_id
+          AND b.employee_id=a.employee_id));
+          
+--Sa se listeze info depsre angajatii care au lucrat in toate proiectele demarate in primele 6 luni ale anului 2006
+
+SELECT employee_id
+FROM works_on
+WHERE project_id IN
+        (SELECT PROJECT_id 
+        FROM project
+        WHERE start_date BETWEEN TO_DATE('2006-01-01', 'YYYY-MM-DD') AND TO_DATE('2006-06-30', 'YYYY-MM-DD'))
+GROUP BY employee_id
+HAVING COUNT (project_id) = (SELECT COUNT(*)
+                            FROM project
+                            WHERE to_char(start_date, 'mm') <=6
+                            AND to_char (start_date, 'yyyy') = 2006)
+ORDER BY 1;

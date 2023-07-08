@@ -1,0 +1,7 @@
+--sa se afiseze codul angajatilor care au cel putin 2 subalterni
+
+SELECT employee_id, last_name, first_name
+FROM employees e
+WHERE (SELECT count(*)
+        FROM employees e2
+        WHERE e2.manager_id = e.employee_id) > 2;

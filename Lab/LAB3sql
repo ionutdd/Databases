@@ -1,0 +1,170 @@
+--LAB3
+
+--Join On
+SELECT e.last_name || ' ' || e.first_name, d.department_name
+FROM employees e JOIN departments d ON e.department_id = d.department_id;
+
+--Natural Join
+SELECT e.last_name || ' ' || e.first_name, d.department_name, department_id   --A se nota faptul ca la USING nu specificam aliasul unde folosim using-ul!!!
+FROM employees e JOIN departments d USING(department_id);
+
+--cu where
+SELECT e.last_name || ' ' || e.first_name, d.department_name
+FROM employees e, departments d
+WHERE e.department_id = d.department_id;
+
+
+
+--afisati si managerul direct si managerul de departament folosing conditia where
+SELECT e.last_name || ' ' || e.first_name, d.department_name, e.manager_id AS manager_direct, d.manager_id AS manager_departament
+FROM employees e, departments d
+WHERE e.department_id = d.department_id;
+
+
+
+--Sa se afiseze numele, salariul, titlul job-ului, orasul si tara in care lucreaza angajatii condusi direct cu codul 100 (folosind join)
+SELECT e.last_name, e.salary, j.job_title, l.city, l.country_id
+FROM employees e JOIN jobs j ON e.job_id = j.job_id  JOIN departments d ON e.department_id = d.department_id JOIN locations l ON d.location_id = l.location_id
+WHERE e.manager_id = 100;
+
+--Sa se afiseze numele, salariul, titlul job-ului, orasul si tara in care lucreaza angajatii condusi direct cu codul 100 (folosind where doar)
+SELECT e.last_name, e.salary, j.job_title, l.city, l.country_id
+FROM employees e, jobs j, departments d, locations l 
+WHERE e.manager_id = 100
+AND e.job_id = j.job_id
+AND e.department_id = d.department_id
+AND d.location_id = l.location_id;
+
+
+
+--Sa se gaseasca titlurile de job-uri care au salariul maxim mai mic decat salariul angajatului cu cod 100 (Non equijoin)
+SELECT j.job_title
+FROM jobs j, employees e
+WHERE j.max_salary < e.salary
+AND e.employee_id = 100;
+
+--Sa se gaseasca titlurile de job-uri care au salariul maxim mai mic decat salariul angajatului cu cod 100 (WHERE)
+SELECT j.job_title
+FROM jobs j
+WHERE j.max_salary < (SELECT salary FROM employees WHERE employee_id = 100); --subcerere necorelata, intoarce o singura coloana si un singur rezultat
+
+
+--Self join de tip nonequijoin: Sa se afiseaze numele salariatilor care au fost angajati dupa Gates
+SELECT e.last_name, e.hire_date
+FROM employees e, employees e2
+WHERE initcap(e2.last_name)='Gates' AND e.hire_date > e2.hire_date;
+
+--Subcerere necorelata: Sa se afiseaze numele salariatilor care au fost angajati dupa Gates
+SELECT E.last_name, E.hire_date
+FROM employees e
+WHERE e.hire_date > (SELECT e2.hire_date FROM employees e2 WHERE initcap(e2.last_name)='Gates');
+
+
+--Scrieti o ceree pentru a se afisa numele, luna in litere si anul angajarii pentru toti salariatii din acelasi departament cu Gates, al caror nume contine litera a
+SELECT e.last_name, to_char(e.hire_date,'MONTH') AS month, to_char(e.hire_date,'YYYY') AS year
+FROM employees e
+WHERE e.department_id = (SELECT e.department_id FROM employees e WHERE e.last_name = 'Gates')
+AND LOWER(e.last_name) LIKE '%a%'
+AND initcap(e.last_name) NOT LIKE 'Gates';     --ca sa il scoatem pe GATES
+
+
+
+--Sa se afiseze codul si numele angajatilor care lucreaza in acelasi departament cu cel putin un angajat al carui nume contine litera "t".
+SELECT e.employee_id, e.last_name
+FROM employees e
+WHERE e.department_id IN (SELECT DISTINCT e.department_id FROM employees e WHERE LOWER(e.last_name) LIKE '%t%' AND e.department_id IS NOT null);
+
+
+
+
+--OUTER JOIN:
+--Sa se afiseze numele salariatilor si numele departamentelor in care lucreaza. Se vor afisa si salariatii care nu au sociat un departament.
+SELECT e.*, d.*
+FROM departments d, employees e
+WHERE d.department_id(+) = e.department_id
+ORDER BY d.department_id DESC;
+
+SELECT last_name, department_name
+FROM departments d RIGHT OUTER JOIN employees e
+ON e.department_id = d.department_id;
+
+SELECT last_name, department_name
+FROM employees e FULL OUTER JOIN departments d
+ON e.department_id = d.department_id;
+
+
+--Sa se afiseze orasele si departamentele in care se afla respectivele locatii, dar si cele care nu au setat departamentul
+SELECT d.department_name, l.city
+FROM departments d, locations l
+WHERE d.location_id (+) = l.location_id;
+
+
+--Cu full outer join
+SELECT d.department_name, l.city
+FROM departments d full outer join locations l
+ON d.location_id = l.location_id;
+
+--EX 10: Sa se afiseze codiul departamentelor in care nume contine sireul "re" sau in care lucreaza angajati avand codul job-ului "SA_REP"
+SELECT department_id "Cod departament"
+FROM employees
+WHERE upper(job_id)='SA_REP'
+UNION --nu da dupicate
+SELECT department_id "codul"
+FROM departments
+WHERE lower(department_name) LIKE '%re%';
+
+
+SELECT department_id "Cod departament"
+FROM employees
+WHERE upper(job_id)='SA_REP'
+UNION ALL     --da si duplicatele
+SELECT department_id "codul"
+FROM departments
+WHERE lower(department_name) LIKE '%re%';
+
+
+--EX 10.1: Sa se afiseze codiul departamentelor si numele acestora in care nume contine sireul "re" sau in care lucreaza angajati avand codul job-ului "SA_REP"
+SELECT department_name,e.department_id "Cod departament"
+FROM employees e, departments d
+WHERE upper(job_id)='SA_REP'
+AND e.department_id=d.department_id
+UNION --nu da dupicate
+SELECT department_name, department_id "codul"
+FROM departments
+WHERE lower(department_name) LIKE '%re%';
+
+
+--EX 11: Sa se obtina codurile departamentelor in care nu lucreaza nimeni.
+SELECT department_id
+FROM departments
+MINUS 
+SELECT DISTINCT e.department_id
+FROM employees e, departments d
+WHERE e.department_id=d.department_id;
+
+
+--Ex 12: Se cer codurile departamentelor al caror nume contine sirul "re" si in care lucreaza angajati avand codul job-ului "HR_REP"
+SELECT department_id
+FROM departments
+WHERE lower(department_name) LIKE '%re%'
+INTERSECT
+SELECT department_id
+FROM employees
+WHERE upper(job_id) = 'HR_REP';
+
+
+--EX:17 Sa se afiseze numele si salariul angajatilor condusi direct de angajatul care nu are manager
+SELECT last_name, salary
+FROM employees
+WHERE manager_id = (SELECT employee_id FROM employees WHERE manager_id is NULL); 
+
+--Pentru subcereri dar cu tupluri
+SELECT last_name, department_id, salary
+FROM employees
+WHERE (department_id, salary) IN (SELECT department_id, salary FROM employees WHERE commission_pct IS NOT NULL);
+
+--EX 20: Scrieti o cerere care afiseaza angajatii care castiga mai mult decat cei care au job-ul cu "clerk". Sortati in ordine descr.
+SELECT *
+FROM employees
+WHERE salary > ALL (SELECT salary FROM employees WHERE UPPER(job_id) LIKE '%CLERK%')
+ORDER BY salary DESC;

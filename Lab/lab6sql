@@ -1,0 +1,35 @@
+--lab6
+
+SELECT last_name, hire_date  FROM employees WHERE  hire_date > (SELECT hire_date  FROM  employees WHERE  INITCAP(last_name)='Gates');
+
+describe employees;
+
+--3
+SELECT last_name, salary from employees
+WHERE manager_id IN (SELECT employee_id FROM employees WHERE manager_id is NULL);
+
+--4
+
+SELECT last_name, department_id, salary FROM employees WHERE (department_id, salary) IN (SELECT department_id, salary FROM employees WHERE commission_pct IS NOT NULL);
+
+--8
+
+SELECT last_name, department_id, salary, job_id 
+FROM employees
+WHERE (salary, commission_pct) IN (SELECT e.salary, e.commission_pct
+                                    FROM employees e, locations l, departments d 
+                                    WHERE INITCAP(l.city) = 'Oxford' AND d.location_id = l.location_id AND e.department_id = d. department_id);
+                                    
+                                    
+--7 Scrie?i o cerere pentru a afi?a numele, numele departamentului ?i 
+--salariul angaja?ilor care câ?tig? comision, dar al c?ror ?ef direct câ?tig? comision.
+
+SELECT e.last_name, d.department_name, e.salary
+FROM employees e, departments d
+WHERE e.commission_pct IS NOT NULL AND e.department_id = d.department_id AND e.manager_id IN (SELECT employee_id
+                                                                                              FROM employees
+                                                                                               WHERE commission_pct IS NOT NULL);
+                                                                                               
+--17.S? se afi?eze codul ?i numele angaja?ilor care câstig?mai mult decât salariul mediu din firm?.
+--Se va sorta rezultatul în ordine descresc?toare a salariilor.
+
