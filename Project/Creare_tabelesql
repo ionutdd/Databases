@@ -1,0 +1,546 @@
+--Exercitiul 11 
+
+
+--Inserarea datelor in tabela Utilizatori
+
+CREATE TABLE Utilizatori 
+(
+    id_utilizator int NOT NULL,
+    username varchar2(25) NOT NULL UNIQUE,
+    email varchar2(100) NOT NULL UNIQUE,
+    parola varchar2(25) NOT NULL,
+    PRIMARY KEY(id_utilizator)
+);
+
+INSERT INTO Utilizatori 
+VALUES (1, 'ionut', 'ionut@gmail.com', 'ionut');
+INSERT INTO Utilizatori 
+VALUES (2, 'alex', 'ale@gmail.com', 'pal');
+INSERT INTO Utilizatori 
+VALUES (3, 'maremaestru', 'maremaestru@yahoo.com', 'GM');
+INSERT INTO Utilizatori 
+VALUES (4, 'queen', 'qel@gmail.com', 'iamqueen');
+INSERT INTO Utilizatori 
+VALUES (5, 'd4player', 'plic@gmail.com', 'londonsystem');
+
+DESCRIBE Utilizatori;
+SELECT * 
+FROM Utilizatori;
+
+
+--Inserarea datelor in tabela Utilizatori
+
+CREATE TABLE Rating 
+(
+    id_rating int NOT NULL,
+    timp_de_joc varchar2(10) NOT NULL,
+    PRIMARY KEY(id_rating)
+);
+
+INSERT INTO Rating 
+VALUES (1500, 'clasic');
+INSERT INTO Rating 
+VALUES (2500, 'rapid');
+INSERT INTO Rating 
+VALUES (250, 'bullet');
+INSERT INTO Rating 
+VALUES (1750, 'blitz');
+INSERT INTO Rating 
+VALUES (1867, 'blitz');
+INSERT INTO Rating 
+VALUES (2000, 'blitz');
+INSERT INTO Rating 
+VALUES (3175, 'blitz');
+
+DESCRIBE Rating;
+SELECT * 
+FROM Rating;
+
+
+--Inserarea datelor in tabela Conversatii
+
+CREATE TABLE Conversatii 
+(
+    id_conversatie int NOT NULL,
+    id_utilizator1 int NOT NULL,
+    id_utilizator2 int NOT NULL,
+    PRIMARY KEY(id_conversatie),
+    FOREIGN KEY(id_utilizator1) REFERENCES Utilizatori(id_utilizator),
+    FOREIGN KEY(id_utilizator2) REFERENCES Utilizatori(id_utilizator)
+);
+
+INSERT INTO Conversatii 
+VALUES (1, 1, 2);
+INSERT INTO Conversatii 
+VALUES (2, 1, 3);
+INSERT INTO Conversatii 
+VALUES (3, 1, 4);
+INSERT INTO Conversatii 
+VALUES (4, 1, 5);
+INSERT INTO Conversatii 
+VALUES (5, 2, 3);
+
+
+DESCRIBE Conversatii;
+SELECT * 
+FROM Conversatii;
+
+
+
+--Inserarea datelor in tabela Puzzles
+
+CREATE TABLE Puzzles 
+(
+    id_puzzle int NOT NULL,
+    solutie varchar2(250) NOT NULL,
+    pozitie varchar2(250) NOT NULL,
+    rating int NOT NULL,
+    PRIMARY KEY(id_puzzle)
+);
+
+INSERT INTO Puzzles 
+VALUES (1, 'Ra8', 'Kd6 Ra1 Kd8', 100);
+INSERT INTO Puzzles 
+VALUES (2, 'Qd7', 'Kd6 Qc6 Kd8 Rc8 Re8', 150);
+INSERT INTO Puzzles 
+VALUES (3, 'Qa8 Rc8 Qc8', 'Kh6 Qa2 Rc3 Kh8', 200);
+INSERT INTO Puzzles 
+VALUES (4, 'Kg7 h4 Kf6 h3 Ke7 h2 c7 Kb7 Kd7 h1=Q c8=Q', 'Kh8 c6 Ka6 h5', 2500);
+INSERT INTO Puzzles 
+VALUES (5, 'Kc6 Kc8 d6 Kd8 d7 Ke7 Kc7 Ke6 d8=Q', 'Kd6 d5 Kd8', 1000);
+
+
+DESCRIBE Puzzles;
+SELECT * 
+FROM Puzzles;
+
+
+--Inserarea datelor in tabela Prietenie
+
+CREATE TABLE Prietenie
+(
+    id_prietenie int NOT NULL,
+    id_utilizator1 int NOT NULL,
+    id_utilizator2 int NOT NULL,
+    data_inceput date,
+    PRIMARY KEY(id_prietenie),
+    FOREIGN KEY(id_utilizator1) REFERENCES Utilizatori(id_utilizator),
+    FOREIGN KEY(id_utilizator2) REFERENCES Utilizatori(id_utilizator)
+);
+
+INSERT INTO Prietenie 
+VALUES (1, 1, 4, to_date('31-03-2023', 'dd-mm-yyyy'));
+INSERT INTO Prietenie 
+VALUES (2, 1, 5, to_date('30-04-2023', 'dd-mm-yyyy'));
+INSERT INTO Prietenie 
+VALUES (3, 2, 3, to_date('19-05-2023', 'dd-mm-yyyy'));
+INSERT INTO Prietenie 
+VALUES (4, 2, 4, to_date('30-06-2022', 'dd-mm-yyyy'));
+INSERT INTO Prietenie 
+VALUES (5, 3, 5, to_date('18-08-2022', 'dd-mm-yyyy'));
+
+
+DESCRIBE Prietenie;
+SELECT * 
+FROM Prietenie;
+
+
+--Inserarea datelor in tabela Turnee
+
+CREATE TABLE Turnee
+(
+    id_turneu int NOT NULL,
+    nr_participanti int NOT NULL,
+    data_start date NOT NULL,
+    durata int NOT NULL,
+    PRIMARY KEY(id_turneu)
+);
+
+INSERT INTO Turnee 
+VALUES (1, 5, to_date('31-03-2023', 'dd-mm-yyyy'), 7);
+INSERT INTO Turnee 
+VALUES (2, 3, to_date('01-04-2023', 'dd-mm-yyyy'), 3);
+INSERT INTO Turnee 
+VALUES (3, 4, to_date('31-01-2023', 'dd-mm-yyyy'), 12);
+INSERT INTO Turnee 
+VALUES (4, 2, to_date('28-02-2023', 'dd-mm-yyyy'), 8);
+INSERT INTO Turnee 
+VALUES (5, 5, to_date('29-02-2020', 'dd-mm-yyyy'), 15);
+
+DESCRIBE Turnee;
+SELECT * 
+FROM Turnee;
+
+
+--Inserarea datelor in tabela Notificari
+
+CREATE TABLE Notificari
+(
+    id_notificare int NOT NULL,
+    titlu varchar2(20) NOT NULL,
+    PRIMARY KEY(id_notificare)
+);
+
+INSERT INTO Notificari 
+VALUES (1, 'Turneu in 2 zile');
+INSERT INTO Notificari 
+VALUES (2, 'Turneu Titled');
+INSERT INTO Notificari 
+VALUES (3, 'Cerere prietenie');
+INSERT INTO Notificari 
+VALUES (4, 'Felicitari!');
+INSERT INTO Notificari 
+VALUES (5, 'Turneu in 5 zile');
+
+DESCRIBE Notificari;
+SELECT * 
+FROM Notificari;
+
+
+--Inserarea datelor in tabela Mesaj
+
+CREATE TABLE Mesaj
+(
+    id_mesaj int NOT NULL,
+    id_notificare int NOT NULL,
+    text varchar2(10000) NOT NULL,
+    PRIMARY KEY(id_mesaj),
+    FOREIGN KEY(id_notificare) REFERENCES Notificari(id_notificare)
+);
+
+INSERT INTO Mesaj 
+VALUES (1, 1, 'Inregistreaza-te acum la turneul "Titled Tuesday" care incepe in 2 zile!');
+INSERT INTO Mesaj 
+VALUES (2, 2, 'Turneu in care participa maestri incep in curand!');
+INSERT INTO Mesaj 
+VALUES (3, 3, 'Ai primit o cerere de prietenie de la d4player!');
+INSERT INTO Mesaj 
+VALUES (4, 4, 'Ai reusit sa obtii un elo record. Felicitari!');
+INSERT INTO Mesaj 
+VALUES (5, 5, 'Au mai ramas doar 5 zile in care te poti inscrie la turneul nostru!');
+
+DESCRIBE Mesaj;
+SELECT * 
+FROM Mesaj;
+
+
+
+--Inserarea datelor in tabela Plati
+
+CREATE TABLE Plati
+(
+    id_plata int NOT NULL,
+    id_utilizator int NOT NULL,
+    suma int NOT NULL,
+    data_tranzactie date NOT NULL,
+    PRIMARY KEY(id_plata),
+    FOREIGN KEY(id_utilizator) REFERENCES Utilizatori(id_utilizator)
+);
+
+INSERT INTO Plati 
+VALUES (1, 1, 15, to_date('01-01-2023', 'dd-mm-yyyy'));
+INSERT INTO Plati 
+VALUES (2, 1, 20, to_date('01-02-2023', 'dd-mm-yyyy'));
+INSERT INTO Plati 
+VALUES (3, 2, 15, to_date('01-03-2023', 'dd-mm-yyyy'));
+INSERT INTO Plati 
+VALUES (4, 4, 15, to_date('31-01-2023', 'dd-mm-yyyy'));
+INSERT INTO Plati 
+VALUES (5, 1, 10, to_date('01-05-2023', 'dd-mm-yyyy'));
+
+DESCRIBE Plati;
+SELECT * 
+FROM Plati;
+
+
+
+--Inserarea datelor in tabela Partide
+
+CREATE TABLE Partide
+(
+    id_partida int NOT NULL,
+    id_utilizator1 int NOT NULL,
+    id_utilizator2 int NOT NULL,
+    id_analiza int NOT NULL,
+    timp_de_joc varchar2(10) NOT NULL,
+    PRIMARY KEY(id_partida),
+    FOREIGN KEY(id_utilizator1) REFERENCES Utilizatori(id_utilizator),
+    FOREIGN KEY(id_utilizator2) REFERENCES Utilizatori(id_utilizator)
+);
+
+INSERT INTO Partide
+VALUES (1, 1, 2, 1, 'blitz');
+INSERT INTO Partide
+VALUES (2, 1, 3, 2, 'bullet');
+INSERT INTO Partide
+VALUES (3, 1, 4, 3, 'clasic');
+INSERT INTO Partide
+VALUES (4, 1, 5, 4, 'blitz');
+INSERT INTO Partide
+VALUES (5, 2, 3, 5, 'blitz');
+
+DESCRIBE Partide;
+SELECT * 
+FROM Partide;
+
+
+
+--Inserarea datelor in tabela Analiza
+
+CREATE TABLE Analiza
+(
+    id_analiza int NOT NULL,
+    id_partida int NOT NULL,
+    id_mutare int NOT NULL,
+    rezultat_analiza varchar2(3) NOT NULL,
+    PRIMARY KEY(id_analiza),
+    FOREIGN KEY(id_partida) REFERENCES Partide(id_partida)
+);
+
+INSERT INTO Analiza
+VALUES (1, 1, 1, '1-0');
+INSERT INTO Analiza
+VALUES (2, 2, 2, '1/2');
+INSERT INTO Analiza
+VALUES (3, 3, 4, '1-0');
+INSERT INTO Analiza
+VALUES (4, 5, 3, '0-1');
+INSERT INTO Analiza
+VALUES (5, 4, 5, '1/2');
+
+DESCRIBE Analiza;
+SELECT * 
+FROM Analiza;
+
+
+
+--Inserarea datelor in tabela Mut?ri
+
+CREATE TABLE Mutari
+(
+    id_mutare int NOT NULL,
+    id_partida int NOT NULL,
+    id_utilizator int NOT NULL,
+    nr_mutare int NOT NULL,
+    mutare varchar2(5) NOT NULL,
+    PRIMARY KEY(id_mutare),
+    FOREIGN KEY(id_partida) REFERENCES Partide(id_partida),
+    FOREIGN KEY(id_utilizator) REFERENCES Utilizatori(id_utilizator)
+);
+
+INSERT INTO Mutari
+VALUES (1, 1, 1, 1, 'e4');
+INSERT INTO Mutari
+VALUES (2, 2, 1, 1, 'e5');
+INSERT INTO Mutari
+VALUES (3, 3, 4, 2, 'Nf3');
+INSERT INTO Mutari
+VALUES (4, 4, 5, 3, 'Nf6');
+INSERT INTO Mutari
+VALUES (5, 5, 2, 10, 'O-O-O');
+
+DESCRIBE Mutari;
+SELECT * 
+FROM Mutari;
+
+
+--Inserarea datelor in tabela asociativa UtilizatoriRating
+
+CREATE TABLE UtilizatoriRating
+(
+    id_utilizator int NOT NULL,
+    id_rating int NOT NULL,
+    PRIMARY KEY(id_utilizator, id_rating),
+    FOREIGN KEY(id_utilizator) REFERENCES Utilizatori(id_utilizator),
+    FOREIGN KEY(id_rating) REFERENCES Rating(id_rating)
+);
+
+INSERT INTO UtilizatoriRating
+VALUES (1, 1500);
+INSERT INTO UtilizatoriRating
+VALUES (1, 2500);
+INSERT INTO UtilizatoriRating
+VALUES (2, 2500);
+INSERT INTO UtilizatoriRating
+VALUES (1, 250);
+INSERT INTO UtilizatoriRating
+VALUES (5, 1500);
+INSERT INTO UtilizatoriRating
+VALUES (3, 1867);
+INSERT INTO UtilizatoriRating
+VALUES (3, 3175);
+INSERT INTO UtilizatoriRating
+VALUES (4, 2000);
+INSERT INTO UtilizatoriRating
+VALUES (4, 1750);
+INSERT INTO UtilizatoriRating
+VALUES (5, 3175);
+
+DESCRIBE UtilizatoriRating;
+SELECT * 
+FROM UtilizatoriRating;
+
+
+--Inserarea datelor in tabela asociativa UtilizatoriRating
+
+CREATE TABLE UtilizatoriPuzzles
+(
+    id_utilizator int NOT NULL,
+    id_puzzle int NOT NULL,
+    PRIMARY KEY(id_utilizator, id_puzzle),
+    FOREIGN KEY(id_utilizator) REFERENCES Utilizatori(id_utilizator),
+    FOREIGN KEY(id_puzzle) REFERENCES Puzzles(id_puzzle)
+);
+
+INSERT INTO UtilizatoriPuzzles
+VALUES (1, 1);
+INSERT INTO UtilizatoriPuzzles
+VALUES (1, 2);
+INSERT INTO UtilizatoriPuzzles
+VALUES (2, 1);
+INSERT INTO UtilizatoriPuzzles
+VALUES (1, 3);
+INSERT INTO UtilizatoriPuzzles
+VALUES (5, 4);
+INSERT INTO UtilizatoriPuzzles
+VALUES (3, 4);
+INSERT INTO UtilizatoriPuzzles
+VALUES (3, 5);
+INSERT INTO UtilizatoriPuzzles
+VALUES (4, 5);
+INSERT INTO UtilizatoriPuzzles
+VALUES (4, 1);
+INSERT INTO UtilizatoriPuzzles
+VALUES (5, 2);
+
+DESCRIBE UtilizatoriPuzzles;
+SELECT * 
+FROM UtilizatoriPuzzles;
+
+
+--Inserarea datelor in tabela asociativa UtilizatoriPrietenie
+
+CREATE TABLE UtilizatoriTurnee
+(
+    id_utilizator int NOT NULL,
+    id_turneu int NOT NULL,
+    PRIMARY KEY(id_utilizator, id_turneu),
+    FOREIGN KEY(id_utilizator) REFERENCES Utilizatori(id_utilizator),
+    FOREIGN KEY(id_turneu) REFERENCES Turnee(id_turneu)
+);
+
+INSERT INTO UtilizatoriTurnee
+VALUES (1, 1);
+INSERT INTO UtilizatoriTurnee
+VALUES (1, 2);
+INSERT INTO UtilizatoriTurnee
+VALUES (1, 3);
+INSERT INTO UtilizatoriTurnee
+VALUES (1, 4);
+INSERT INTO UtilizatoriTurnee
+VALUES (1, 5);
+INSERT INTO UtilizatoriTurnee
+VALUES (2, 1);
+INSERT INTO UtilizatoriTurnee
+VALUES (2, 2);
+INSERT INTO UtilizatoriTurnee
+VALUES (2, 3);
+INSERT INTO UtilizatoriTurnee
+VALUES (3, 1);
+INSERT INTO UtilizatoriTurnee
+VALUES (3, 2);
+INSERT INTO UtilizatoriTurnee
+VALUES (3, 3);
+INSERT INTO UtilizatoriTurnee
+VALUES (3, 5);
+INSERT INTO UtilizatoriTurnee
+VALUES (4, 2);
+INSERT INTO UtilizatoriTurnee
+VALUES (4, 4);
+INSERT INTO UtilizatoriTurnee
+VALUES (5, 1);
+INSERT INTO UtilizatoriTurnee
+VALUES (5, 2);
+INSERT INTO UtilizatoriTurnee
+VALUES (5, 3);
+INSERT INTO UtilizatoriTurnee
+VALUES (5, 4);
+INSERT INTO UtilizatoriTurnee
+VALUES (5, 5);
+
+DESCRIBE UtilizatoriTurnee;
+SELECT * 
+FROM UtilizatoriTurnee;
+
+
+
+--Inserarea datelor in tabela asociativa PartideInfo
+
+CREATE TABLE PartideInfo
+(
+    id_partida int NOT NULL,
+    id_analiza int NOT NULL,
+    id_mutare int NOT NULL,
+    PRIMARY KEY(id_partida, id_analiza, id_mutare),
+    FOREIGN KEY(id_partida) REFERENCES Partide(id_partida),
+    FOREIGN KEY(id_analiza) REFERENCES Analiza(id_analiza),
+    FOREIGN KEY(id_mutare) REFERENCES Mutari(id_mutare)
+);
+
+INSERT INTO PartideInfo
+VALUES (1, 1, 1);
+INSERT INTO PartideInfo
+VALUES (1, 1, 2);
+INSERT INTO PartideInfo
+VALUES (2, 1, 1);
+INSERT INTO PartideInfo
+VALUES (2, 1, 2);
+INSERT INTO PartideInfo
+VALUES (3, 1, 4);
+INSERT INTO PartideInfo
+VALUES (3, 2, 5);
+INSERT INTO PartideInfo
+VALUES (4, 4, 3);
+INSERT INTO PartideInfo
+VALUES (4, 3, 3);
+INSERT INTO PartideInfo
+VALUES (5, 5, 5);
+INSERT INTO PartideInfo
+VALUES (1, 1, 3);
+
+
+DESCRIBE PartideInfo;
+SELECT * 
+FROM PartideInfo;
+
+
+--cream secventa seq ce va fi folosita pentru inserarea in tabel
+
+CREATE SEQUENCE seq
+START WITH 1
+INCREMENT BY 1
+MINVALUE 1
+MAXVALUE 5;
+
+
+----Inserarea datelor in tabela asociativa UtilizatoriNotificari
+
+CREATE TABLE UtilizatoriNotificari
+(
+    id_utilizator int NOT NULL,
+    id_notificare int NOT NULL,
+    PRIMARY KEY(id_utilizator, id_notificare),
+    FOREIGN KEY(id_utilizator) REFERENCES Utilizatori(id_utilizator),
+    FOREIGN KEY(id_notificare) REFERENCES Notificari(id_notificare)
+);
+
+DESCRIBE UtilizatoriNotificari;
+
+INSERT INTO UtilizatoriNotificari VALUES (seq.nextval, 2);
+INSERT INTO UtilizatoriNotificari VALUES (seq.nextval, 1);
+INSERT INTO UtilizatoriNotificari VALUES (seq.nextval, 3);
+INSERT INTO UtilizatoriNotificari VALUES (seq.nextval, 5);
+INSERT INTO UtilizatoriNotificari VALUES (seq.nextval, 4);
+
+SELECT * 
+FROM UtilizatoriNotificari;

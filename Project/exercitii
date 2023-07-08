@@ -1,0 +1,213 @@
+--Exercitiul 12
+
+--Sa se afiseze toate id-urile si email-urile utilizatorilor care au rating-ul 1500 si au si o conversatie cu utilizatorul 2 
+--si mai e si prieten cu utilizatorul cu id-ul 5.  (Cerintele 1 si 2)  (Join pe 4 tabele)
+
+SELECT ut.id_utilizator, u.email                  --1 rezultat, utilizatorul cu id-ul 1 si mailu-l ionut@gmail.com indeplineste toate conditiile
+FROM UtilizatoriRating ut, Utilizatori u, Conversatii c
+WHERE u.id_utilizator = ut.id_utilizator
+AND ut.id_rating = 1500
+AND ut.id_utilizator IN
+                        (SELECT tabela.id_utilizator1 
+                        FROM (SELECT id_utilizator1
+                              FROM Prietenie
+                              WHERE id_utilizator2 = 5) tabela
+                        WHERE tabela.id_utilizator1 = c.id_utilizator1 
+                        AND c.id_utilizator2 = 2);
+
+
+--Sa se afiseze cati utilizatori au participat la turneul cu id-ul 2, au incercat sa rezolve puzzle-ul 1
+--Si care au avut macar o plata cu suma 15 (Cerinta 3) 
+--3 utilizatori indeplinesc aceste conditii (cei cu id-urile 1,2 si 4)
+
+SELECT SUM(COUNT(*))  
+FROM UtilizatoriTurnee
+WHERE id_turneu = 2
+AND id_utilizator IN 
+        (SELECT id_utilizator
+        FROM UtilizatoriPuzzles
+        WHERE id_puzzle = 1
+        AND id_utilizator IN
+                (SELECT u.id_utilizator
+                FROM Utilizatori u, Plati p
+                WHERE u.id_utilizator = p.id_utilizator
+                AND p.suma = 15))
+GROUP BY id_utilizator;
+
+--Afisati informatiile despre partidele care s-au jucat la stilul de joc blitz in ordine descrescatoare (Cerinta 4)
+
+SELECT *
+FROM PARTIDE
+WHERE DECODE(nvl(timp_de_joc,0), 'blitz' , 1) = 1
+ORDER BY id_analiza DESC;
+        
+--(Cerinta 5) Sa se afiseze mesajul 'exista' daca exista utilizatori care au incercat sa rezolve puzzle-ul care 
+--in pozitia de start are un turn pe a1 (in componenta atributului pozitie e secventa Ra1)
+--si care au lungimea username-ului 4 sau 5
+--si care au jucat in macar un turneu care a inceput in 2023
+--si care au initiat o prietenie in martie aprilie sau iunie (sunt in atributul id_utilizator1)
+--Daca nu exista niciunul, se afiseaza 'nu exista' 
+                    
+SELECT CASE 
+           WHEN COUNT(DISTINCT id_utilizator) > 0 THEN 'exista'  --Avem utilizatorii 1 si 2, deci exista
+           ELSE 'nu exista'
+           END 
+FROM UtilizatoriTurnee
+WHERE id_turneu IN
+                (SELECT id_turneu --Turneele 1,2,3,4
+                FROM Turnee
+                WHERE data_start >= '01-JAN-2023')
+AND id_utilizator IN
+                    (SELECT id_utilizator --tot Utilizatorii 1,2 si 4
+                    FROM Utilizatori
+                    WHERE LENGTH(username) = 4 OR LENGTH(username) = 5
+                    AND id_utilizator in 
+                                        (SELECT id_utilizator --Utilizatorii 1, 2 si 4
+                                        FROM UtilizatoriPUZZLES
+                                        WHERE id_puzzle = 
+                                                (SELECT id_puzzle --pozitia cu numarul 1 
+                                                FROM Puzzles
+                                                WHERE Pozitie like '%Ra1%')))
+AND id_utilizator IN 
+                    (SELECT DISTINCT(id_utilizator1) --utilizatorii 1 si 2
+                    FROM Prietenie
+                    WHERE EXTRACT (MONTH FROM data_inceput) = 3 OR EXTRACT (MONTH FROM data_inceput) = 4 OR EXTRACT (MONTH FROM data_inceput) = 6);
+
+--(Cerinta 6) Sa se afiseze toate informatiile despre turneele
+--care au un numar de participanti mai mare sau egal cu numarul mediu de participantiu de la un turneu.
+--Sa se afiseze si numarul mediu de participanti la un turneu. Afisarea se va face printr-o coloana separata denumit 'AverageNumber'.
+
+WITH tabela(AverageNumber) AS
+    (SELECT avg(nr_participanti)
+    FROM Turnee)
+    SELECT *
+    FROM turnee, tabela
+    WHERE nr_participanti >= tabela.AverageNumber;
+    
+    
+--Exercitiul 13
+
+--cerinta a)
+INSERT INTO Mutari VALUES (6,1,1,11,'Bf5'); --Inseram temporar o instructiune care nu are copii in alte tabele pentru a o putea sterge apoi
+DELETE FROM Mutari --Acum putem sterge toate informatille din tabela Mutari in care mutarea efectuata este 11
+WHERE nr_mutare = (Select nr_mutare
+                   FROM Mutari
+                   WHERE id_mutare NOT IN 
+                                        (SELECT id_mutare
+                                       FROM PartideInfo
+                                       WHERE id_partida = 1 OR id_partida = 3));
+
+--cerinta b)
+INSERT INTO Mutari VALUES(6,1,1,15,'Bf5'); --Inseram temporar o instructiune care nu are copii in alte tabele pentru a o putea modifica.
+                                          --De exemplu, sa spunem ca am introdus din gresala mutarea Bf5 la mutare 15, 
+                                          --in loc de mutarea 11 cum ar fi fost corect. Voi face acum modificarea utilizand functia de UPDATE:
+  
+UPDATE MUTARI
+SET mutare = 'Bf6'
+WHERE id_mutare not in (SELECT id_mutare
+                   FROM PartideInfo
+                   WHERE id_partida = 1 OR id_partida = 3);
+                   
+
+--cerinta c)
+--Acum putem sa stergme linia inserata la punctul b), pentru a lasa tabela asa cum era initial.
+--Ca sa facem lucrurile putin mai complicate, sa presupunem ca vrem sa stergem 
+--din tabela Mutari toate informatille
+--Din mutaril care sunt in partidele cu id-urile 1 si 3
+DELETE FROM MUTARI
+WHERE id_mutare not in (SELECT id_mutare
+                        FROM PartideInfo
+                        WHERE id_partida = 1 OR id_partida = 3);
+                        
+                        
+--Exercitiul 15
+
+--cerinta a) (Outer Join pe 7 tabele)
+--Selectati username-ul utilizatorilor care au primit o notificare cu un text in care se mentioneaza ca 
+--participa maestri la un turneu ce va incepe in curand
+--si titlul notifificarii are cuvantul cheie Titled
+--si care a facut o plata de 15$ 
+--si care a initiat o conversatie cu utilizatorul cu id-ul 2
+--si care a initiat o conversatie cu utilizatorul cu numarul 4
+SELECT DISTINCT(u.username)
+FROM Utilizatori u, UtilizatoriNotificari UN, Plati P
+WHERE u.id_utilizator = un.id_utilizator 
+AND u.id_utilizator IN 
+                    (SELECT UN.id_utilizator 
+                    FROM UtilizatoriNotificari UN, Notificari n
+                    WHERE un.id_notificare = n.id_notificare 
+                    AND titlu LIKE '%Titled%'
+                    AND un.id_utilizator IN(SELECT UN.id_utilizator 
+                                            FROM UtilizatoriNotificari UN, Mesaj m
+                                            WHERE UN.id_notificare = m.id_notificare 
+                                            AND m.id_notificare IN (SELECT m.id_notificare
+                                                                    FROM Mesaj 
+                                                                    WHERE m.Text LIKE '%maestri%')))
+AND u.id_utilizator IN 
+                        (SELECT id_utilizator
+                        FROM Plati
+                        WHERE id_utilizator = u.id_utilizator
+                        AND suma = 15)
+AND u.id_utilizator IN 
+                        (SELECT id_utilizator1
+                        FROM Conversatii
+                        WHERE id_utilizator1 = u.id_utilizator
+                        AND id_utilizator2 = 2)
+AND u.id_utilizator IN 
+                        (SELECT id_utilizator1
+                        FROM Prietenie
+                        WHERE id_utilizator1 = u.id_utilizator
+                        AND id_utilizator2 = 4);
+                        
+--cerinta b) (Division)
+--Sa se afiseze toate id-urile utilizatorilor cu parola cu macar un l in componenta si care fac parte dintr-un turneu cu id-ul 1 sau 5.
+
+SELECT id_utilizator
+FROM Utilizatori u
+WHERE id_utilizator IN
+                    (SELECT id_utilizator
+                    FROM Utilizatori 
+                    WHERE parola like '%l%')
+GROUP BY id_utilizator
+HAVING COUNT(id_utilizator)<=
+                        (SELECT COUNT(*)
+                        FROM UtilizatoriTurnee
+                        WHERE u.id_utilizator = id_utilizator
+                        AND id_turneu = 1 OR id_turneu = 5);
+                        
+--cerinta c) (top-n)
+--Sa se afiseze informatiile primilor n utilizatorilor ordonati in mod descrescator dupa numele emailurilor, unde n e un nr nat>0 dat de la tastatura.
+
+SELECT *
+FROM (SELECT * 
+      FROM Utilizatori
+      ORDER BY email DESC) ordonati_desc
+WHERE ROWNUM <= &n;
+
+
+
+DROP TABLE Rezolva2;
+
+CREATE TABLE Rezolva2
+(
+    id_utilizator NOT NULL,
+    id_puzzle NOT NULL, 
+    PRIMARY KEY (id_utilizator, id_puzzle),
+    FOREIGN KEY (id_utilizator) REFERENCES Utilizatori,
+    FOREIGN KEY (id_puzzle) REFERENCES Puzzles
+);
+
+DESCRIBE Rezolva2;
+
+INSERT INTO Rezolva2
+VALUES (1,1);
+INSERT INTO Rezolva2
+VALUES (2,2);
+INSERT INTO Rezolva2
+VALUES (3,3);
+INSERT INTO Rezolva2
+VALUES (4,4);
+INSERT INTO Rezolva2
+VALUES (5,5);
+
+SELECT * FROM Rezolva2;
